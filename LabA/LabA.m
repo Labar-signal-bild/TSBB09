@@ -13,7 +13,7 @@ shadcorr
 %% 2.1 
 
 %ANSWER:
-% Gives a better linnear approximation in the spectrum which is the camera
+% Gives a better linear approximation in the spectrum which is the camera
 % is more likely to be used in.
 
 bB = double(darkimage);
@@ -25,7 +25,7 @@ b  = double(origimage);
 f1 = shadecorr(bA, bB, b);
 
 figure(1)
-imshow(f1/255); axis image; axis off; colormap(jet);
+imshow(f1/255); axis image; axis off; colormap(gray);
 
 
 
@@ -108,6 +108,7 @@ imshow(im2);
 im = imread('bayer/raw0001.png');
 im = im2double(im);
 
+figure(10)
 imshow(im);
 [rows,cols] = size(im); 
 
@@ -122,7 +123,7 @@ mask3(1:2:end,2:2:end) = 1;
 
 
 im_rgb=reshape([im.*mask1 im.*mask2 im.*mask3],[size(im) 3]);
-
+figure(11)
 imshow(im_rgb);
 
 %% BAYER GRBG
@@ -174,16 +175,17 @@ imshow(im_rgb);
 f=[1 2 1]/4;
 imgr=conv2(f,f,im.*mask1,'same');
 
-imshow(img);
+figure(11)
+imshow(imgr);
 
 
-mean(mean(im));
-mean(mean(img));
+mean(mean(im))
+mean(mean(imgr))
 %ANSWER: The means are different since the img image is darker then im. 
 
 imgr=conv2(f,f,im.*mask1,'same')./conv2(f,f,mask1,'same');
-mean(mean(im));
-mean(mean(img));
+mean(mean(im))
+mean(mean(imgr))
 %ANSWER: Now we have normalized the filter. Since the mask has values lower
 %the 1 dividing by it will increase the power in the image
 
@@ -191,10 +193,11 @@ imgg=conv2(f,f,im.*mask2,'same')./conv2(f,f,mask2,'same');
 imgb=conv2(f,f,im.*mask3,'same')./conv2(f,f,mask3,'same');
 
 im_rgb=reshape([imgr imgg imgb],[size(im) 3]);
-
+mean(mean(mean(im_rgb)))
+figure(12)
 imshow(im_rgb);
 
-%ANSWER: There's chromatic aberration
+%ANSWER: There's 
 
 %%
 
@@ -241,6 +244,9 @@ imshow(rgb_avr);
 subplot(2, 1, 2)
 imshow(imtemp); 
 
+%ANSWER: There is more noise before. When we use more pictures the image is
+%more smooth and not noisy
+
 %%
 
 im_temp=zeros(rows,cols);
@@ -257,7 +263,8 @@ imvrgb=raw2rgb(imv);
 
 imshow(imvrgb*10000);
 
-%ANSWEAR: highest absoul
+%ANSWEAR: highest absoulte value (most variance) int the dark areas. See
+%image
 
 
 %% SNR
@@ -266,7 +273,7 @@ imshow(imvrgb*10000);
 
 imshow(10000*imv*100./imva);
 
-
+% High SNR in the dark areas
 
 
 %%
@@ -275,6 +282,7 @@ indim=uint8(imm*255);
 rhist=zeros(256,1);
 ghist=zeros(256,1);
 bhist=zeros(256,1);
+
 for k=0:255,
 k;
 redk=find(mask1);
@@ -288,7 +296,24 @@ indk=bluek(find(indim(bluek)==k));
 bhist(k+1)=sum(imv(indk))/(length(indk)+eps);
 end
 
-
 plot([0:255],[bhist ghist rhist]*255^2)
 axis([0 255 0 10])
 grid on
+
+% The more ligth the camera collect the more nosie we see. When close to
+% 255 (the camera is saturated) all will be the same and therfore there
+% will be no noise and no variance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
