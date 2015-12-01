@@ -1,3 +1,7 @@
+addpath /site/edu/bb/Bildsensorer/D-EpipolarGeometry/
+
+%%
+
 im1=imread('dinosaur0.png');
 im2=imread('dinosaur5.png');
 load('dino_Ps','P');
