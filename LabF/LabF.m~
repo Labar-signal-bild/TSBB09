@@ -67,12 +67,7 @@ ramptest
 ramptest
 
 
-% ANSWER: Theory: real even but: We get a complex H, and that id the case even though h is an even 
-% function because length of h is even making it impossible to center it properly.  
+% ANSWER: We get a complex H, and that id the case since h is an od  
 
-% ANSWER: pp in rampfilter zeropads p
 
-% ANSWER: The diffrences are on a scale 10^-15 so very small
 
-% ANSWER: The error is largest in the center and then larger towardards the
-% edges

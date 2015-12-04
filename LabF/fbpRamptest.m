@@ -42,7 +42,7 @@ axis xy; axis image; colorbar; colormap gray; pause(0);
 % SINOGRAM GENERATION
 %%%
 
-p = generateProjNew(E, rVec, phiVec, 5, 1);
+p = generateProjNew(E, rVec, phiVec, 1, 1);
 subplot(2,2,2); imagesc(phiVec, rVec, p); title('Sinogram');
 xlabel('\phi'); ylabel('r'); axis xy; colorbar; pause(0);
 
@@ -52,36 +52,36 @@ xlabel('\phi'); ylabel('r'); axis xy; colorbar; pause(0);
 
 q = rampfilter(p, rVec, 'signal');
 %q = p;
-subplot(2,2,3); imagesc(phiVec, rVec, q);
-axis xy; colorbar; title('Rampfiltered sinogram'); pause(0);
+%subplot(2,2,3); imagesc(phiVec, rVec, q);
+%axis xy; colorbar; title('Rampfiltered sinogram'); pause(0);
 
 [f M] = backprojectNew(q, rVec, phiVec, xVec, yVec, 'nearest');
-subplot(2,2,4); imagesc(yVec, xVec, f);
-axis xy; axis image;  
-caxis([1 1.05]); 
-colorbar; title('Reconstructed image'); pause(0);
-
-% Annan oversmpling
-
-p1 = generateProjNew(E, rVec, phiVec, 5,0);
 
 
 %%%
 % RECONSTRUCTION
 %%%
 
-q1 = rampfilter(p1, rVec, 'signal');
+q1 = rampfilter(p, rVec, 'fourier2');
+[f1 M1] = backprojectNew(q1, rVec, phiVec, xVec, yVec, 'nearest');
 %q = p;
 
+q1 = rampfilter(p, rVec, 'fourier1');
+[f2 M2] = backprojectNew(q1, rVec, phiVec, xVec, yVec, 'nearest');
 
-%[f1 M1] = backprojectNew(q1, rVec, phiVec, xVec, yVec, 'linear');
-%figure(2);
-%subplot(1,2,2); imagesc(yVec, xVec, f1);
-%axis xy; axis image;  
-%caxis([1 1.05]); 
-%subplot(1,2,1); imagesc(yVec, xVec, f);
-%axis xy; axis image;  
-%caxis([1 1.05]); 
+figure(1)
+subplot(2,2,1); imagesc(yVec, xVec, f);
+axis xy; axis image;  
+colorbar; title('Reconstructed image');
+subplot(2,2,2); imagesc(yVec, xVec, f1);
+axis xy; axis image;  
+colorbar; title('Reconstructed image');
+subplot(2,2,3); imagesc(yVec, xVec, f1-f);
+axis xy; axis image;  
+colorbar; title('Reconstructed image');
+subplot(2,2,4); imagesc(yVec, xVec, abs(f2-f1));
+axis xy; axis image;  
+colorbar; title('Reconstructed image');
 
 %%
 

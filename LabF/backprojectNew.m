@@ -1,14 +1,12 @@
 function [f M] = backprojectNew(q, rVec, phiVec, xVec, yVec, intpol)
-
 close all
-
 [xGrid, yGrid] = meshgrid(xVec, yVec);
 f = zeros(size(xGrid));
 Nr = length(rVec);
 Nphi = length(phiVec);
 deltaR = rVec(2) - rVec(1);
 
-
+M = 2; % OBS detta endast för orkar inte gör film
 
 switch intpol
   case 'nearest'
@@ -19,11 +17,11 @@ switch intpol
       rIx = round(r / deltaR + (Nr + 1) / 2);
       f = f + proj(rIx);
       
-      figure(5)
-      imagesc(yVec, xVec, f);
-      axis xy; axis image;
-      colormap('gray');
-      M(phiIx) = getframe;
+      %figure(5)
+      %imagesc(yVec, xVec, f);
+      %axis xy; axis image;
+      %colormap('gray');
+      %M(phiIx) = getframe;
       
     end
   case 'linear'
@@ -41,11 +39,11 @@ switch intpol
     
           f = f + w1.*proj(rIxlow) + w2.*proj(rIxhigh);
           
-          figure(5)
-          imagesc(yVec, xVec, f);
-          axis xy; axis image;
-          colormap('gray');
-          M(phiIx) = getframe;
+          %figure(5)
+          %imagesc(yVec, xVec, f);
+          %axis xy; axis image;
+          %colormap('gray');
+          %M(phiIx) = getframe;
       end
   otherwise
     error('Unknown interpolation.');

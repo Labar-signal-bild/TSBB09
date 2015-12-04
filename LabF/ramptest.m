@@ -5,7 +5,7 @@ rVec = (0.5:Nr-0.5) * rLen/Nr - rLen/2; % r-axis
 
 p = ones(Nr);
 
-domain = 'signal';
+domain = 'fourier2';
 q = rampfilter(p, rVec, domain);
 
 
