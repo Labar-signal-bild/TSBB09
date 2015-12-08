@@ -1,7 +1,7 @@
 %% Lab E Panorama stiching
 l5path = '/site/edu/bb/Bildsensorer/E-Panorama/'
 addpath('/site/edu/bb/Bildsensorer/E-Panorama/images1/')
-
+addpath('/site/edu/bb/Bildsensorer/E-Panorama/util/')
 %%
 correspondences_select
 
@@ -30,7 +30,7 @@ img_distortion3 = image_lensdist_inv('atan', img1, 0.0003);
 
 figure(1)
 subplot(2, 2, 1)
-imshow(im1)
+imshow(img1)
 title('Original image')
 subplot(2, 2, 2)
 imshow(img_distortion1)
@@ -123,13 +123,10 @@ imshow(uint8(pano))
 
 
 
-hr=hfov/2*[-1.8 1.8]+hoff;
-vr=vfov/2*[-1.1 1.1]+voff;
+%% 4 Stitching in Spherical Coordinates
 
-%%
-
-
-
+rows = 1200;
+cols = 1600; 
 
 K = [1420 -3 808;
     0 1420 605;
@@ -144,8 +141,8 @@ fovC_deg = fovC*180/pi;
 hfov = fovR;
 vfov = fovC;
 
-% ANSWEAR: field of view for Rows is 26,6779 degres/0.4656 rad and for 
-%          Cols it's 37.1401 degres/0.6482 rad!
+% ANSWEAR: field of view for Rows is 22,9058 degres/0.3998 rad and for 
+%          Cols it's 29.3961 degres/0.5131 rad!
 
 hoff = atan((cols/2-808)*K(1,1));
 voff = atan((rows/2-605)*K(1,1));
@@ -155,27 +152,23 @@ voff = atan((rows/2-605)*K(1,1));
 hr=hfov/2*[-1.8 1.8]+hoff;
 vr=vfov/2*[-1.1 1.1]+voff;
 
+sample_density = 0.05;
+
+
+%% 
+
+p1 = map_points(inv(K), x1);
+p2 = map_points(inv(K), x2);
 
 
 
+P1 = unit_points(p1);
+P2 = unit_points(p2);
 
 
+[U,D,V]=svd(P2*P1');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+R = V;
 
 
 
