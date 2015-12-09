@@ -40,7 +40,7 @@ imshow(img_distortion2)
 title('Distortion gamma = 0.0001')
 subplot(2, 2, 4)
 imshow(img_distortion3)
-title('Distortion gamma = 0.0003')
+title('Distortion gamma = 0.0004')
 
 % ANSWER: The image with gamma of 0.0003 give a good result. Just do trial
 % and error, no mathematics for estimating gammma.
@@ -48,13 +48,15 @@ title('Distortion gamma = 0.0003')
 %% 3 Uncalibrated Stitching
 img2=imread('img02.jpg');
 
-img1_rect = img_distortion3;
-img2_rect = image_lensdist_inv('atan', img2, 0.0003);
+img1 = img_distortion3;
+img2 = image_lensdist_inv('atan', img2, 0.0003);
 
 
 
 [x1,x2]=correspondences_select(img1,img2);
 save corresp1to2.mat x1 x2
+
+
 
 % ANSWER: The minimum number of points are 4. If adding more points the
 % homographis will be better.
@@ -160,16 +162,34 @@ sample_density = 0.05;
 p1 = map_points(inv(K), x1);
 p2 = map_points(inv(K), x2);
 
+R12 = procrustes(p1, p2);
 
 
-P1 = unit_points(p1);
-P2 = unit_points(p2);
+%% Test Hur kolla om detta är rimligt??
+
+[Vtest Dtest] = eig(R12);
+tr = acos((trace(R12)-1)/2)*180/pi; % Detta ger ca 15 grader. Alltså är R12 rimlig
+
+%% Ta ut punkter mellan bilder
 
 
-[U,D,V]=svd(P2*P1');
+img3=imread('img03.jpg');
 
-R = V;
+img3_rect = image_lensdist_inv('atan', img3, 0.0003);
 
+
+
+[x22,x32]=correspondences_select(img2,img3);
+save corresp2to3.mat x22 x32
+
+%%
+
+p22 = map_points(inv(K), x22);
+p32 = map_points(inv(K), x32);
+
+R23 = procrustes(p22, p32);
+
+%% Blend all images in the spherical coordinate system.
 
 
 
