@@ -157,14 +157,6 @@ vr=vfov/2*[-1.1 1.1]+voff;
 sample_density = 0.05;
 
 
-%% 
-
-p1 = map_points(inv(K), x1);
-p2 = map_points(inv(K), x2);
-
-R12 = procrustes(p1, p2);
-
-
 %% Test Hur kolla om detta är rimligt??
 
 [Vtest Dtest] = eig(R12);
@@ -182,17 +174,60 @@ img3_rect = image_lensdist_inv('atan', img3, 0.0003);
 [x22,x32]=correspondences_select(img2,img3);
 save corresp2to3.mat x22 x32
 
-%%
 
+
+%%
+% -----------------------------------------------------
+% Blend all images in the spherical coordinate system.
+% -----------------------------------------------------
+
+p1 = map_points(inv(K), x1);
+p2 = map_points(inv(K), x2);
 p22 = map_points(inv(K), x22);
 p32 = map_points(inv(K), x32);
 
+R12 = procrustes(p1, p2);
 R23 = procrustes(p22, p32);
 
-%% Blend all images in the spherical coordinate system.
+
+H12 = K*R12*inv(K);
+H23 = K*R23*inv(K);
+
+p2_new = map_points(H12,p1);
+
+%%
+
+pano1=image_resample_sphere(img1,K,inv(R12),[-3*hfov hfov],[-vfov vfov]);
+pano2=image_resample_sphere(img2,K,eye(3),[-hfov hfov],[-vfov vfov]);
+
+alpha0=ones(size(img1(:,:,1)),'uint8')*255;
+alpha1=image_resample_sphere(alpha0,K,inv(R12),[-hfov hfov],[-vfov vfov]);
+alpha2=image_resample_sphere(alpha0,K,eye(3),[-hfov hfov],[-vfov vfov]);
+
+figure(4)
+imshow(uint8(pano1))
 
 
 
+
+
+[rows,cols,ndim]=size(img1);
+imbox=[1 cols cols 1 1;1 1 rows rows 1];
+
+
+imbox12 = map_points(R12,imbox);
+figure(2);imshow(img2); hold on
+plot(imbox12(1,:),imbox12(2,:),'g')
+axis image
+
+[rows,cols,ndim]=size(img2);
+imbox=[1 cols cols 1 1;1 1 rows rows 1];
+
+
+imbox21 = map_points(inv(R12),imbox);
+figure(3);imshow(img1); hold on
+plot(imbox21(1,:),imbox21(2,:),'g')
+axis image
 
 
 
