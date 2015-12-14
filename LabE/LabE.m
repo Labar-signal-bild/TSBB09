@@ -2,16 +2,7 @@
 l5path = '/site/edu/bb/Bildsensorer/E-Panorama/'
 addpath('/site/edu/bb/Bildsensorer/E-Panorama/images1/')
 addpath('/site/edu/bb/Bildsensorer/E-Panorama/util/')
-%%
-correspondences_select
 
-homography_stls
-
-image_lensdist_inv
-
-image_resample
-
-image_resample_sphere
 
 %% 2. Image rectification
 
@@ -134,20 +125,20 @@ K = [1420 -3 808;
     0 1420 605;
     0 0 1];
 
-fovR = atan(rows/2/K(2,2));
-fovC = atan(cols/2/K(1,1));
+fovR = 2*atan(rows/2/K(2,2));
+fovC = 2*atan(cols/2/K(1,1));
 
 fovR_deg = fovR*180/pi;
 fovC_deg = fovC*180/pi;
 
-hfov = fovR;
-vfov = fovC;
+vfov = fovR;
+hfov = fovC;
 
 % ANSWEAR: field of view for Rows is 22,9058 degres/0.3998 rad and for 
 %          Cols it's 29.3961 degres/0.5131 rad!
 
-hoff = atan((cols/2-808)*K(1,1));
-voff = atan((rows/2-605)*K(1,1));
+hoff = atan((cols/2-808)/K(1,1));
+voff = atan((rows/2-605)/K(2,2));
 
 
 
@@ -156,11 +147,6 @@ vr=vfov/2*[-1.1 1.1]+voff;
 
 sample_density = 0.05;
 
-
-%% Test Hur kolla om detta är rimligt??
-
-[Vtest Dtest] = eig(R12);
-tr = acos((trace(R12)-1)/2)*180/pi; % Detta ger ca 15 grader. Alltså är R12 rimlig
 
 %% Ta ut punkter mellan bilder
 
@@ -195,42 +181,54 @@ H23 = K*R23*inv(K);
 
 p2_new = map_points(H12,p1);
 
-%%
+%% Test Hur kolla om detta är rimligt??
 
-pano1=image_resample_sphere(img1,K,inv(R12),[-3*hfov hfov],[-vfov vfov]);
-pano2=image_resample_sphere(img2,K,eye(3),[-hfov hfov],[-vfov vfov]);
+[Vtest Dtest] = eig(R12);
+tr = acos((trace(R12)-1)/2)*180/pi; % Detta ger ca 15 grader. Alltså är R12 rimlig
+
+%%
+astep = 0.05 * pi/180;
+
+pano1=image_resample_sphere(img1,K,inv(R12),hr,vr,astep);
+pano2=image_resample_sphere(img2,K,eye(3),hr,vr,astep); % Mittenbilden
+pano3=image_resample_sphere(img3,K,R23,hr,vr,astep);
 
 alpha0=ones(size(img1(:,:,1)),'uint8')*255;
-alpha1=image_resample_sphere(alpha0,K,inv(R12),[-hfov hfov],[-vfov vfov]);
-alpha2=image_resample_sphere(alpha0,K,eye(3),[-hfov hfov],[-vfov vfov]);
-
-figure(4)
-imshow(uint8(pano1))
+alpha1=image_resample_sphere(alpha0,K,inv(R12),hr,vr,astep);
+alpha2=image_resample_sphere(alpha0,K,eye(3),hr,vr,astep);
+alpha3=image_resample_sphere(alpha0,K,R23,hr,vr,astep);
 
 
+pano=zeros(1008,2117,3,'int32');
+asum=int32(alpha1)+int32(alpha2)+int32(alpha3);
+asum(asum==0)=1;
 
-
-
-[rows,cols,ndim]=size(img1);
-imbox=[1 cols cols 1 1;1 1 rows rows 1];
-
-
-imbox12 = map_points(R12,imbox);
-figure(2);imshow(img2); hold on
-plot(imbox12(1,:),imbox12(2,:),'g')
-axis image
-
-[rows,cols,ndim]=size(img2);
-imbox=[1 cols cols 1 1;1 1 rows rows 1];
-
-
-imbox21 = map_points(inv(R12),imbox);
-figure(3);imshow(img1); hold on
-plot(imbox21(1,:),imbox21(2,:),'g')
-axis image
+%%
+for k=1:3,
+    pano(:,:,k)=pano(:,:,k)+int32(pano1(:,:,k)).*int32(alpha1);
+    pano(:,:,k)=pano(:,:,k)+int32(pano2(:,:,k)).*int32(alpha2);
+    pano(:,:,k)=pano(:,:,k)+int32(pano3(:,:,k)).*int32(alpha3);
+    pano(:,:,k)=pano(:,:,k)./asum;
+end
 
 
 
+figure(5)
+imshow(uint8(pano))
+
+
+
+% ANSWER: This looks better. Sinee we map the images to something that's
+% round which makes the edges fit better.
+
+
+%% Gatuvyer
+
+% Västerlånggatan 360 grader pan, ca 20 grader tilt
+
+% Svart cirkel. Prauge 34 Gigapixels
+
+% Det finns fler än 8 statyer
 
 
 
